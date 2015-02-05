@@ -1,37 +1,59 @@
 
-\chapter[Renderización de la geometría de Panes]{Renderización de la geometría de Panes y otros Materiales Porosos}
-\section{Introducción}
-Debido a las limitaciones existentes actualmente en el renderizado realista de pan, nos proponemos en este capítulo estudiar la utilización de renderizado directo de volúmenes aplicado a un campo escalar representando la geometría de la miga de pan. 
+\chapter[Rendering Bread Crumb Geometry]{Rendering Bread Crumb Geometry and Other Porous Materials}
+\section{Introduction}
 
 %Los resultados obtenidos son realistas y se renderizan en tiempo real. La misma evita el uso de estructuras intermedias, simplificando el desarrollo y reduciendo los costos computacionales.
-El renderizado foto-realístico de materiales con una estructura interna compleja presenta grandes retos en Computación Gráfica.
-En particular, las migas de panes son un material translúcido complejo, con una estructura porosa, que presenta detalles diferentes en distintas escalas, todos igualmente necesarios de ser tenidos en cuenta para lograr una correcta visualización.
-El renderizado realista de estos materiales debe simular correctamente diversos fenómenos como translucencia, auto-sombreado, auto-oclusión, reflectancia, y absorción, entre otros.
 
-Las técnicas del estado del arte en renderizado de migas de panes tratan el material como una superficie, seteando un complejo procedimiento de captura, en el cual la luz reflejada por el material es fotografiada en distintos ángulos.
-Luego, la información es procesada y reconstruída para formar un modelo del material.
-Si bien esta solución es capaz de capturar los fenómenos lumínicos previamente discutidos, también es cierto que la practicidad del método está severamente comprometida, ya que presenta un costo computacional alto, un procedimiento de captura muy limitado y la imposibilidad de obtener más de una apariencia con una única captura.
 
-En un intento por superar estas limitaciones del renderizado, proponemos, en conjunción con el capítulo anterior de modelado de la geometría, utilizar un modelo volumétrico del pan.
-Para esto utilizamos la técnica de renderizado directo de volúmenes, implementada en GPU.
-La técnica permite renderizar los campos escalares del capítulo anterior sin utilizar estructuras intermedias.
-Las imágenes obtenidas son promisorias, y se computan en tiempo real gracias al poder de las placas gráficas actuales.
+The overwhelming variety of materials and their complex light interactions has been a central research topic in Computer Graphics for decades. 
+Physics-based modeling may achieve outstanding light transport phenomena, whose computational approximations are a mainstream topic in the current research on rendering.
+In complex materials, geometric modeling undergoes a similar research strategy, starting from a Physics-based understanding of the material that further leads to an adequate computational approximation.
+Realistic material rendering should take into consideration geometrical modeling and light interaction simultaneously.
 
-\section{Trabajo Previo}
-El tópico de renderizado foto-realista de materiales, y su modelado, atrajo un interés creciente en la literatura científica.
-La mayoría de los esfuerzos están focalizados en materiales complejos de frecuente aparición como el agua \cite{Schechter2012}, la piel humana \cite{Donner2006}, metales, plásticos \cite{Kurt2010}, etc.
-La comunidad de investigadores, sin embargo, ha tenido grandes dificultades para simular adecuadamente la apariencia de otros materiales, como es el caso de materiales cocidos ({\em e.g.}, pizza, galletitas).
-Debido a su compleja geometría y fenómenos lumínicos involucrados, esto continúa siendo un problema abierto \cite{Voglsam2013}.
+The choice of a geometrical model depends on the material and the intended scale representation.
+This choice highly influences the rendering algorithm. Main approaches to material rendering include surface or volume treatment. 
+The rendering equation \cite{Kajiya1986} models geometrical optics behavior in surfaces. 
+The volume rendering equation \cite{Kajiya1984} represents scattering phenomena in volume densities.
 
-Hasta hace pocos años, el costo computacional de renderizar modelos físicos de estos materiales resultaba prohibitivo si el tiempo real era un requerimiento.
-De todas formas, el crecimiento notable en poder de cómputo debido al diseño masivamente paralelo de las placas gráficas \cite{Yeo09,Harris06}, está permitiendo la simulación de complejos fenómenos de interacción de la luz con los materiales en tiempos de cómputo aceptables.
+Typically, authors use the surface representation for homogeneous materials (metals, plastics, and similar materials) \cite{Neumann1999}.
+This method models microscopic surface details using statistical assumptions.
+If mesoscopic details are modeled (as required for instance in wood or bricks) \cite{Lefebvre2000}, a usual technique is to precompute these details in textures that can be mapped onto surfaces.
+Locally flat surfaces are fast to render but they impose limitations to the rendering quality that are sometimes impossible to surmount, specially the features that arise due to the mesoscopic structure and light transport phenomena in the materials.
+
+Bread crumbs are extremely complex materials to model and render, due to the intricate geometries and light transport phenomena arising within them.
+In this particular case, the naive surface approach flatly fails, since mesoscopic details, clearly visible on their surfaces, are essential to recognize the material.
+More sophisticated surface modeling techniques, like the use of bidirectional texture functions \cite{Tong2002}, does not handle light propagation phenomena adequately.
+To overcome this limitation, a complex material model is proposed \cite{Tong2005}.
+This method produces more realistic results, but the capturing and rendering procedure are extremely complex, and the modeling is somewhat inflexible (for example, the surface representation does not allow arbitrary cuts).
+
+
+On the other hand, there is a wide literature about modeling materials that are better fitted to a volume representation (for example smoke and clouds) \cite{Chentanez2011,Zhou2008}.
+Volumes are computationally expensive but, being mesh-free, they do not have the rendering drawbacks mentioned above for surfaces.
+There is a trade-off, then, between geometrical representations for complex materials.
+Where simplicity and real-time rendering are required, surface-based representation is mostly used, and when photorealism is the final requirement, a volume-based modeling is chosen.
+However, the arise of GPUs is shifting this trade-off, since it may allow volume representations at interactive time rates, as we show in this chapter.
+
+In this chapter we apply a GPU based direct volume rendering (DVR) \cite{Levoy1988,Kruger2003, Kratz2006} on a scalar field to render the final structure.
+DVR applies a ray marching algorithm through a volume, accumulating different properties for each pixel.
+We enhance the rendering method with self-occlusion, specular highlights, automatic crust determination, and shadows.
+The rendering workflow does not use intermediate structures, simplifying the modeling process.
+In addition, the bread crumb shape can be modified interactively, with the possibility of performing arbitrary cuts and slices of the 3D structure in real time.
+Also, the bread crust can be easily defined along with its own properties like color and translucency.
+
+
+The method obtains very promising images in real time.
+
+\section{Previous Work}
+The topic of photorealistic material modeling and rendering attracted a significant amount of research recently.
+Most has been focused in frequently appearing complex materials such as water \cite{Schechter2012}, skin \cite{Donner2006}, metals, plastics \cite{Kurt2010}, etc.
+The computer graphics community has struggled to adequately emulate the appearance of other materials, such as baked materials ({\em e.g.}, pizza, cookies), but, due to their complex geometry and underlying light transport phenomena, this continues to be an open problem \cite{Voglsam2013}.
+Until recently, the computational cost of rendering physically based models of these materials was impractical when real-time is an issue.
+However, the remarkable growth in computing power do to the massively parallel design of modern graphics cards \cite{Yeo09,Harris06}, is enabling the simulation of complex light transport phenomena at acceptable computational rates.
 
 Simulating an acceptable bread geometrical model represents an additional challenge.
 This and other kinds of porous structures are the result of complex mechanisms involving physical deformations, heat and mass transport during baking, and several chemical reactions.
 
 Recent studies employs phenomenological considerations on real breads, but the geometry is fixed ({\em i.e.}, non procedural) \cite{VanDyck2014}: a fixed geometry does not allow to obtain several different bread types easily, since it requires a capture procedure for each of them, and, in addition, bubble distributions can be neither controlled nor changed.
-
-%Different rendering algorithms are targeted to different data structures. Particularly, triangular meshes should be derived from voxel data (marching cubes \cite{Lorensen1987}). Nevertheless, the construction of a porous bread structure can demand large amounts of memory.
 
 The presence of mesostructures (bubbles and alveoli of complex shapes) makes bread a quasi homogeneous material \cite{Tong2005}. 
 For this reason, adequate surface representations of this material are not possible.
@@ -46,8 +68,8 @@ Recent results suggest that 1D models could suffice, for instance modeling the g
 These and other results in the food industry have some significance in bread crumb modeling and rendering, and may be used as a further basis for computational baking models. 
 
 
-\section{Renderizado Directo de Volúmenes (DVR)}
-The technique of Direct Volume Rendering (DVR)\cite{Kratz2006} generates two-dimensional images by computing the interaction of light with a semi-transparent medium that is represented by a discrete scalar field.
+\section{Direct Volume Rendering (DVR)}
+The technique of DVR\cite{Kratz2006} generates two-dimensional images by computing the interaction of light with a semi-transparent medium that is represented by a discrete scalar field.
 This field describes the density of the medium at regular sample points. 
 For each pixel in the image a ray is cast from the camera position and the radiance reaching the camera from its direction is computed by approximating the radiative transfer equation (RTE). This equation describes the change in radiance along a ray as it traverses non-transparent media.
 In its complete form, the RTE incorporates many different optical properties and effects. 
@@ -106,49 +128,8 @@ The computation replaces the integral sum by a discrete sum over the length of t
 Other effects can be accounted for, augmenting the final image's fidelity, as well as the technique's computing cost. 
 The basis of our rendering algorithm uses the simplified transmittance and emission only model, along with some artistic considerations, to achieve real time frame rates.
 The rendering algorithm is described in detail in a further section. 
-%~\ref{sec:rendering}.
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%La técnica de DVR tiene como objetivo crear una representación bidimensional de un volumen
-%definido por una función de densidad tridimensiopocnal. Para ello, se emiten rayos desde el punto de vista de una cámara en una escena virtual y se utiliza la función de densidad para calcular la cantidad de luz que la cámara recibe en la dirección del rayo. Para esto se evalúa la función de densidad en el camino del rayo y se usan los valores adquiridos para aproximar el efecto de varios fenómenos lumínicos, como pueden ser la extinción, transmitancia, o dispersión lumínica, entre otros. La información obtenida de procesar todos los rayos se utiliza para definir el color de los pixeles en la imagen final.
 
-%La radiancia es la cantidad de luz que pasa, o es emitida, desde un punto y atraviesa un determinado ángulo sólido. En el contexto de DVR, el medio que los rayos atraviesan, y que es definido por una función de densidad, es considerado como emisivo. Por lo tanto, cuando se busca calcular la cantidad de luz recibida en la dirección de un rayo, lo que se hace es aproximar la radiancia recibida de un punto distante siguiendo la dirección del rayo. El valor de la radiancia es aproximado como la suma de una radiancia de fondo y la radiancia emitida por el medio por el cuál se mueve el rayo \cite{Kratz2006} :
-
-%\begin{equation} \label{eq:general_radiance}  
-%  L(p_n) = L_b + \int_{p_0}^{p_n} \frac{\partial L(t)}{\partial p} \, dt,
-%\end{equation}
-
-%\noindent donde $L_b$ es la radiancia de fondo, $p_0$ y $p_n$ son los puntos inspeccionados en la dirección del rayo más cercano y más lejano respectivamente, $L(t)$ es la radiancia evaluada en el punto $t$, y $\partial p$ es la distancia entre puntos evaluados. En el momento de calcular $L(p_n)$, la integral es aproximada por una suma.
-
-%La extinción es la pérdida de fotones en un haz de luz debido a la absorción en el medio que atraviesa y la dispersión hacia otras direcciones. Algunos de los fotones colisionarán con particulas del medio y serán absorbidas y transformadas en otras formas de energía, mayormente calor. Otras rebotarán y pasarán a moverse en otras direcciones. Estos fenómenos se aproximan usando un coeficiente de absorción para el medio, $k_a$ y un coeficiente de dispersión $k_s$. Si el efecto de dispersión es ignorado, la fórmula que define la cantidad de radiancia absorbida en el largo de un segmento de rayo
-es: 
-
-%\begin{equation} \label{eq:radiance_absorption}  
-%    L_b \ e^{- \textstyle  \int_{p_0}^{p_n} k_a(t) \, dt}.
-%\end{equation}
-
-%El valor $\int_{p_i}^{p_j} k_a(t) \, dt$ es llamado coeficiente de absorción y se referenciar\'a como $\tau_{(p_i, p_j)}$.
-
-%La transmitancia es un concepto complementario a la extinción y describe la cantidad de luz que pasa por un medio en una dirección determinada. El valor de transmitancia entre dos puntos $p_i$ y $p_j$
-%es:
-
-%\begin{equation} \label{eq:general_radiance}  
-%  T(p_i,p_j) = e^{- \textstyle \tau_{(p_i, p_j)}}.
-%\end{equation}
-
-%Si la emisión de luz se asume como un término constante ($\rho$) para todos los puntos del medio, la fórmula inicial de radiancia queda:
-
-%\begin{equation} \label{eq:ray_radiance}  
-%  L(p_n) = L_b \ e^{-\tau(p_0, p_n)} + \int_{p_0}^{p_n} \rho \ e^{-\tau(t,p_n)} \, dt.
-%\end{equation}
-
-%Esto significa que la radiancia entre los puntos $p_0$ y $p_n$ se puede calcular como la radiancia de fondo restante luego de la atenuación del medio sumada a la emisión, también atenuada, en todos los puntos del medio que atraviesa el rayo.
-
-%La técnica de DVR define un volumen donde una función de densidad se evalúa en intervalos regulares y utiliza esa información para aproximar la transmitancia en esos puntos y de esa manera aproximar la cantidad de luz que llega a la cámara. La suma integral descrita anteriormente se reemplaza por una suma discreta de los puntos evaluados de un rayo donde \'este intersecta al volumen que interesa representar. 
-
-%Otros efectos lumínicos pueden ser aproximados. Esto aumenta la fidelidad de la imagen final pero también aumenta el costo de cómputo de la técnica. Algunos de estos efectos son el cálculo de fase, el c\'alculo de luz entrante por dispersión o luz extinguida por dispersión, entre otros. Dado que el objetivo de este trabajo es lograr un renderizado en tiempo real, el algoritmo implementado usa como base el modelo de cálculo de radiancia simplificado que toma en cuenta sólo la
-%transmitancia del medio.
-
-\section{Implementación}
+\section{Implementation}
 
 
 We created a demo application \footnote{available at \emph{https://www.github.com/rbaravalle/Pysys}} that uses the particle system described in the previous sections to render real-time bread models using a DVR approach. 
@@ -176,7 +157,7 @@ The normal vector used for this computation is the gradient of the volume textur
 The demo we present provides the user with the ability to modify parameters such as the transmittance coefficient, the transmittance threshold, the color assigned to the crumb and the visibility of the specular highlights. 
 By modifying these parameters the user can produce images that resemble other porous materials, such as sponges.
 
-\subsection*{Ambient Occlusion}
+\subsection{Ambient Occlusion}
 
 One key aspect to enhance the final image appearance is the local contributions due to tiny material features (emission, occlusion, absorption). 
 Previous works show that considering ambient occlusion can greatly enhance synthetic image realism \cite{Hernell2010}.
@@ -187,7 +168,7 @@ It then uses this value to modulate the contribution of a ray sample.
 Setting different values for $r$ produces similar results. 
 Fig.~\ref{fg:occlusion} shows that the enhancement added using ambient occlusion clearly improves the final image appearance and is a key aspect in realistic bread appearance. It is worth mentioning that the net effect of this term was somehow oblivious to the radius $r$ of the surrounding sphere, for $r > 0$.
  
-\subsection*{Normals Computation}
+\subsection{Normals Computation}
 
 We use a simple forward difference schema for the gradient computation. In this method, we compute the normal vector at a point using the gradient, represented as the normalized difference vector between the field values at the forward positions and the actual position:
 
@@ -203,7 +184,7 @@ N &= normalize([x,y,z])
 We use the normals and the light vector to determine the specular contribution, applying a simple Phong model \cite{Phong1973}, with a parameter that lets the user change the impact of the specular component.
 We tested other more accurate specular models, but there was no appreciable difference in the final bread appearance.
 
-\subsection*{Shadows Computation}
+\subsection{Shadows Computation}
 
 The DVR technique can also be used to compute realistic shadows using shadow maps \cite{Williams1978}.
 During the shadow map generation we again render a cube representing the particle system.
@@ -212,7 +193,7 @@ If the transmittance along the ray is above a threshold value, then the fragment
 If during the volume traversal the transmittance falls below the threshold, the fragment depth is set to that sample point depth.
 This technique is used along with percentage-closer filtering to generate realistic looking shadows in our demo application.
 
-\subsection*{Crust}
+\subsection{Crust}
 We can provide a function that defines whether a volume point is part of the crust or the crumb. For instance, we may provide a function that defines a cylindrical crust envelope by assigning crumb to positions close to the axis of the cylinder, and crust to all other positions. Another function is provided to define whether a point should be considered empty air.
 This allows an easy way to define bread crust and slices (see Figs.~\ref{fg:crumb} and \ref{fg:results2}).
 
@@ -256,17 +237,6 @@ To eliminate some possible inaccuracies resulting from previous steps, we succes
 Fig.~\ref{fg:crusts} shows examples of scalar fields with crusts added using this technique. The results naturally adapt to any scalar field, even with holes.
 Since the result would completely cover the scalar field, the crust can be set to span only a subset of the complete volume, allowing the user to see the bread crumb.
 
-%%%%%%%%%%%%%%%
-
-%Se cre\'o un programa de prueba\footnote{disponible en \emph{\url{https://www.github.com/rbaravalle/Pysys}}} para evaluar el sistema de partículas que describe la estructura del pan. Este programa usa un campo escalar representando la miga de pan para generar una textura volumétrica que se interpreta como una función de densidad. Esta textura precomputada se usa como entrada para un motor gráfico que utiliza la técnica de DVR para generar imágenes del pan representado por el sistema de partículas original. Este programa demuestra que el método de renderizado propuesto es compatible con los motores gráficos basados en técnicas de renderización en tiempo real en GPU. Se obtienen imágenes de un material realístico así como efectos de sombras suaves dentro del volumen. Esto significa que las técnicas usadas para renderizar estos materiales pueden ser integradas en cualquier motor de renderizado que soporte shaders.
-
-%La malla que utiliza el modelo es un cubo que contiene el volumen definido por el sistema que genera la miga del pan. El código del shader de vértices es muy simple, proveyendo sólamente información geométrica al shader de fragmentos. Este último es donde se encuentra la mayor parte de los cálculos a realizar.
-
-%Dentro del shader de fragmentos la primera operaci\'on es calcular la geometría de un rayo cuyo origen es la cámara de la escena y cuya dirección lo lleva hacia el fragmento siendo calculado. Este rayo es recorrido en intervalos regulares, evaluando la textura volumétrica para obtener la densidad del pan en esos puntos. Este valor se utiliza para calcular la transmitancia acumulada desde la cámara hasta el punto evaluado. Una vez que la transmitancia es menor que un valor preestablecido o el rayo sale del cubo que define el volumen, el cómputo termina.
-
-%En cada punto evaluado también se computa la transmitancia dentro del volumen desde el punto hacia la fuente de luz en la escena. Esto se hace emitiendo un rayo desde el punto con dirección a la luz y nuevamente calculando la densidad en varios puntos del rayo. Con esta nueva información se aproxima la cantidad de luz que llega directamente al punto considerado, y permite representar sombras dentro del volumen.
-
-%La información de transmitancia de los puntos evaluados del rayo principal y desde estos puntos hacia la luz se utilizan para calcular el color final del fragmento. A partir de esta información y tomando diferentes consideraciones artísticas pueden lograrse representaciones realísticas de diferentes materiales. En el caso de las imágenes de muestra presentadas en este trabajo el color del fragmento será más oscuro para areas del volumen que se consideran dentro de la corteza del pan y será de un color amarillo claro para la miga. También se usa un componente especular tenue. La información de transmitancia entre los puntos evaluados y la luz ayuda a proveer detalles de la estructura del pan. La Fig~\ref{fg:fragmentshader} muestra un esquema del cálculo del color final del pixel.
 
 \begin{figure*}[htb!]
   \centerline{\includegraphics[width=13cm]{fragmentshader}}
@@ -278,31 +248,11 @@ Since the result would completely cover the scalar field, the crust can be set t
 El programa de prueba creado permite modificar parámetros tales como el coeficiente de transmitancia del pan, el límite de transmitancia, el color asignado a la miga y la intensidad de los reflejos especulares, entre otros. Esta capacidad permite crear imágenes que semejan otros
 materiales porosos, como por ejemplo esponjas.
 
-%\paragraph{Corteza, fetas y cortes}
-
-%Las partes del volumen pertenecientes a la corteza y a la miga del pan fueron determinadas manualmente mediante una función que asigna una u otra propiedad a cada punto del volumen a partir de su posición. Por ejemplo, para volúmenes de forma cilíndrica se definió una función que designa como corteza a los puntos que están a más de una distancia predefinida del eje del cilindro.
-
-%De la misma manera se define una función que determina si puntos del volumen deben considerarse vacíos, independientemente del valor de la textura volumétrica en ese punto. Esto permite definir fetas de pan de manera sencilla. Un ejemplo del uso de este mecanismo puede apreciarse
-%en la Fig.~\ref{fg:fig5}.
-
-%La asignación de vacío y de corteza deben ser extendidos más allá de ecuaciones basadas en posiciones para poder ser usadas en un proceso artístico.
-
-%*MORFOLOGIA MATEMATICA*
-
-
-%En la siguiente sección se presentan y se evalúan los resultados obtenidos.
-%
-%En esta sección se detallan las imágenes y los tiempos de renderizado obtenidos. 
-
 \subsection{Resultados del renderizado}
-
-%Las imágenes obtenidas a partir del método descrito en la sección anterior fueron renderizadas en una computadora con una placa gráfica nVidia GTX 480 ($480$ cores), la cual es normalmente de uso hogareño. La CPU fue una Intel(R) Core(TM) i5-2300 CPU (cuatro procesadores). La resolución de las imágenes es de $1440\times990$ pixels. 
-%Se obtuvieron diferentes imágenes que semejan materiales horneados. Diferentes tipos de pan pueden ser representados variando los parámetros de transmitancia y colores utilizados (ver Fig.~\ref{fg:fig5}). En la imagen central los patrones producidos por los sistemas de partículas descritos en las secciones previas son claramente visibles. En ese caso, el tiempo de vida de las partículas es diferente para cada una y de esa manera se obtienen burbujas de
-%diferentes tamaños.
 
 \begin{figure*}[htb!]
   \centerline{\includegraphics[width=13cm]{fig5}}
-  \caption{Imágenes de diferentes tipos de pan renderizados en tiempo real. La imagen de la derecha muestra un pan sin corteza}
+  \caption{Different real time rendered breads. The rightmost image shows a bread withouth crust.}
   \label{fg:fig5}
 \end{figure*}
 
@@ -390,28 +340,12 @@ The process automatically scales with the number of GPU processors, so the fps c
 The use of crust slightly boosts the performance since the transmittance is lower for crust regions, {\em i.e.}, the rays need lower step counts to reach a threshold opacity level.
 
 
-\section{Otros Materiales Renderizados}
-
-%\section{Conclusiones}
-
-%Según el conocimiento de los autores, éste es el primer intento de llevar a cabo una renderización en tiempo real de pan de manera convincente sin el uso de procesos intermedios complicados (captura de imágenes, generación de mallas, post-procesamiento). Existen buenos resultados de renderizado de pan obtenidos con otros métodos \cite{Cho2007}, pero es difícil comparar ese trabajo con el presentado en este artículo debido a que ni los detalles de la técnica utilizada ni los tiempos de cálculo han sido publicados.
-
-%Dentro del volumen a renderizar se pueden definir regiones con diferentes propiedades. Esta idea permite generar imágenes con miga y corteza con diferentes parámetros.
-
-%La integración de la técnica descrita con motores gráficos es simple. La información de profundidad de los fragmentos puede obtenerse de manera sencilla y por lo tanto pueden utilizarse técnicas populares de sombras, tales como mapas de sombras.
-
-%Los tiempos de cómputo muestran una alta eficiencia del proceso, lo cual depende en gran medida del número de puntos de evaluación usados y la transmitancia del material. Se pueden alcanzcar tiempos de cómputo consistentes con aplicaciones de tiempo real en todos los casos menos en los cuales el volumen ocupa la mayor parte de la imagen a generar, dado que la técnica se calcula casi enteramente en los shader de fragmentos. 
-
 \section*{Discussion}
-
-%1)En primer lugar, un resumen de lo que hicimos en el paper y por qué es importante/novedoso
 
 To the best of the authors' knowledge, this is the first attempt to convincingly render bread crumb and other materials in real time without introducing complex intermediate processes (capture, mesh generation, precomputation, post-process).
 There are few previous approaches to bread rendering. An example is \cite{Cho2007}, but comparisons with this technique could not be established since key details are unexplained (computing times, render method).
 The proposed method is compatible with current rasterization-based real-time GPU rendering pipelines, providing a realistic looking material, and can be easily integrated into  shader-based 3D engines.
 Also, the presented shadow mapping technique allows a natural integration of the volume within scenes. 
-
-%3) Recordamos que las imagenes obtenidas fueron buenas, y que obtuvimos otros materiales cambiando pocos parametros
 
 The modeling and rendering algorithms are flexible enough to model different materials like bread or sponges, changing a few parameters.
 Other materials such as cakes, pizzas and cheeses can be implemented in the same way, allowing to manage several materials using the same method.
@@ -422,8 +356,6 @@ Regarding the illumination model, the success of our algorithms in rendering rea
 A remarkable improvement in the final realism was due to the addition of an ambient occlusion term, giving the texture a more rich and complex appearance.
 Other effects, such as the Phong specular component, enhanced the bread crumb final appearance.
 More sophisticated specular methods (for instance, Cook-Torrance model \cite{Cook1982}) did not add a significant improvement.
-
-%5)Tiempos de cómputo (muy importante en este paper!)
 
 Computing times were adequate for real-time rendering in standard off-the-shelf computers (we employed a nVidia GTX 480 GPU with an Intel(R) i5 processor).
 Reasonable framerates are always achieved except when the rendered object encompasses a big portion of the screen, since the approach is largely fragment-shader bound.
@@ -439,7 +371,7 @@ In off-line applications, memory swap procedures allow more satisfactory 3D reso
 
 \section*{Conclusions}
 
-In this paper we applied the transmittance direct volume rendering model using the GPU to a 3D scalar field representing the bread crumb structure, obtaining realistic bread crumb images.
+In this chapter we applied the transmittance direct volume rendering model using the GPU to a 3D scalar field representing the bread crumb structure, obtaining realistic bread crumb images.
 We modeled this structure using particle systems and dynamical systems.
 We employed a numerical simulation to solve the resulting set of equations which represents the dynamical system. 
 The particles avoided each other and grew following the dynamic system.
@@ -449,11 +381,6 @@ We implemented the render algorithm in the fragment shader using specular and di
 Results showed high fidelity images in real time, suitable for application in several areas, such as video games, serious games \cite{Susi2007} and photorealistic rendering. 
 These techniques are much simpler and does not present the drawbacks of other state of the art methods, such as capture processes or mesh generation.
 These results make us believe that the volume representation is a right choice for bread modeling and rendering.
-
-As possible continuations of this work, we may extend DVR to handle other phenomena such as indirect illumination, enhancing the resulting images.
-Other porous materials such as cheeses will be investigated.
-We will employ a number of possible solutions to overcome the resolution problem, such as setting different volume textures depending on the distance between the camera and the volume. 
-
 
 
 \begin{figure}

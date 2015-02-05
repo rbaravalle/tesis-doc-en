@@ -1,10 +1,10 @@
 %\documentclass[spanish,a4paper,11pt,oneside,links]{report}
-\documentclass[spanish,a4paper,openany,11pt]{book}
+\documentclass[english,a4paper,openany,11pt]{book}
 \usepackage{graphicx}
 \usepackage{amsmath,amsfonts}
 \usepackage[utf8]{inputenc}
-\usepackage[spanish]{babel}
-\usepackage[Algoritmo]{algorithm}
+%\usepackage{babel}
+\usepackage{algorithm}
 \usepackage{algpseudocode}
 \usepackage{url}
 \usepackage{fancyhdr}
@@ -32,26 +32,26 @@
 
 \input{tapa} \cleardoublepage
 
-\chapter*{Agradecimientos} % si no queremos que añada la palabra "Capitulo"
-\pagenumbering{Roman} % para comenzar la numeracion de paginas en numeros romanos
-\addcontentsline{toc}{chapter}{Agradecimientos} % si queremos que aparezca en el índice
-\markboth{AGRADECIMIENTOS}{AGRADECIMIENTOS} % encabezado 
+%chapter*{Agradecimientos} % si no queremos que añada la palabra "Capitulo"
+%\pagenumbering{Roman} % para comenzar la numeracion de paginas en numeros romanos
+%\addcontentsline{toc}{chapter}{Agradecimientos} % si queremos que aparezca en el índice
+%\markboth{AGRADECIMIENTOS}{AGRADECIMIENTOS} % encabezado 
  
-¡Muchas gracias a todos!
 
-\chapter*{Resumen} % si no queremos que añada la palabra "Capitulo"
-\addcontentsline{toc}{chapter}{Resumen} % si queremos que aparezca en el índice
-\markboth{RESUMEN}{RESUMEN} % encabezado
 
-Una bonita historia
+\chapter*{Abstract} % si no queremos que añada la palabra "Capitulo"
+\addcontentsline{toc}{chapter}{Abstract} % si queremos que aparezca en el índice
+\markboth{Abstract}{Abstract} % encabezado
+
+\ldots
 \tableofcontents % indice de contenidos
 
 \cleardoublepage
-\addcontentsline{toc}{chapter}{Lista de figuras} % para que aparezca en el indice de contenidos
+\addcontentsline{toc}{chapter}{List of Figures} % para que aparezca en el indice de contenidos
 \listoffigures % indice de figuras
 
 \cleardoublepage
-\addcontentsline{toc}{chapter}{Lista de tablas} % para que aparezca en el indice de contenidos
+\addcontentsline{toc}{chapter}{List of Tables} % para que aparezca en el indice de contenidos
 \listoftables % indice de tablas
 
 
@@ -69,8 +69,6 @@ Una bonita historia
 \appendix
 \input{gpu} \cleardoublepage
 
-
-%Otros apéndices (detalles matemáticos, aspectos tecnológicos del pan, etc.)
 
 \cleardoublepage
 \addcontentsline{toc}{chapter}{Bibliografía}

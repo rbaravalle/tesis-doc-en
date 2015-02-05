@@ -238,6 +238,12 @@ Fig.~\ref{fg:crusts} shows examples of scalar fields with crusts added using thi
 Since the result would completely cover the scalar field, the crust can be set to span only a subset of the complete volume, allowing the user to see the bread crumb.
 
 
+\begin{figure}
+  \centerline{\includegraphics[width=13cm]{figures/crusts}}
+  \caption{Crust determination using mathematical morphology. The right image shows that the method works even in extreme cases where the scalar field has holes. }
+  \label{fg:crusts}
+\end{figure}
+
 \begin{figure*}[htb!]
   \centerline{\includegraphics[width=13cm]{fragmentshader}}
   \caption{Cálculo de color en el shader de fragmentos. }
@@ -245,77 +251,10 @@ Since the result would completely cover the scalar field, the crust can be set t
 \end{figure*}
 
 
-El programa de prueba creado permite modificar parámetros tales como el coeficiente de transmitancia del pan, el límite de transmitancia, el color asignado a la miga y la intensidad de los reflejos especulares, entre otros. Esta capacidad permite crear imágenes que semejan otros
-materiales porosos, como por ejemplo esponjas.
 
-\subsection{Resultados del renderizado}
-
-\begin{figure*}[htb!]
-  \centerline{\includegraphics[width=13cm]{fig5}}
-  \caption{Different real time rendered breads. The rightmost image shows a bread withouth crust.}
-  \label{fg:fig5}
-\end{figure*}
-
-Es posible obtener otros materiales (ver Fig.~\ref{fg:fig6}). Estos son el resultado de la variación de parámetros técnicos y artísticos del modelo. En las imágenes de prueba pueden distinguirse un budín (izquierda), un pedazo de torta (medio) y una esponja (derecha). En el caso de la esponja se modificaron los parámetros que definen la función de densidad. Cuando no hay levadura en el proceso de creación puede utilizarse una textura volumétrica cuyos valores provienen de una función aleatoria. La retroiluminación es también aproximada con este modelo (ver Fig.\ref{fg:fig7}). En esa imagen puede apreciarse una esponja retroiluminada junto con la propagación de luz a través del volumen que representa.
-
-\begin{figure*}[htb!]
-  \centerline{\includegraphics[width=13cm]{fig6}}
-  \caption{Distintos materiales obtenidos a partir de diferentes configuraciones de parámetros. De izquierda a derecha: budín, torta y esponja. }
-  \label{fg:fig6}
-
-\end{figure*}
-
-\begin{figure*}[htb!]
-  \centerline{\includegraphics[width=8cm]{fig7}}
-  \caption{Esponja retroiluminada.}
-  \label{fg:fig7}
-\end{figure*}
-
-\subsection{Tiempos de renderizado}
-
-La mayoría de las imágenes se obtuvieron con tasas de refresco de tiempo real (más de 30 FPS), como muestra la Tabla~\ref{tab:n1}. La eficiencia del proceso se resiente cuando la transmitancia es muy baja (el material es casi transparente), dado que se evaluarán más puntos en los rayos a recorrer antes de llegar al límite de transmitancia. Otro parámetro importante es la distancia entre puntos a evaluar. En la Tabla~\ref{tab:n2} se observa que a medida que la cantidad de rayos y de pasos del rayo aumenta, la velocidad decrece. La tabla muestra que los rayos secundarios constituyen el principal cuello de botella, lo cual es lógico, dado que a cada paso del rayo principal, el mismo computa un rayo secundario hacia la luz.
-
-Experimentalmente se encontró que para todos los casos a evaluar $100$ puntos o más presenta buenos resultados.El proceso escala automáticamente con el número de procesadores en una GPU, por lo cual la tasa de refresco obtenida será mayor en GPUs más rápidas y de más procesadores.
+\section{Results}
 
 
-ACTUALIZAR!
-\begin{table}[htb]
-\centering
-\begin{tabular}{|c|c|c|c|c|c|c|}
-\hline &  Pan 1 & Pan 2 & Pan 3 & Budín & Torta & Esponja \\
-\hline
-\hline
- FPS promedio  & 32.2 &  75.5 &  45.2 & 28.5 &  54.2 & 29.7\\
-\hline
- Puntos de evaluación &  140 &  140 &  140 & 256 &  140 & 256 \\
-\hline
- Transmitancia &  15 &  15 &  15 & 15 &  15 & 2.25 \\
-\hline
-\end{tabular}
-\caption{Tiempos de renderizado y parámetros de las imágenes de prueba.}
-\label{tab:n1}
-\end{table}
-
-\begin{table}[htb]
-\centering
-\begin{tabular}{|c|c|c|c|c|c|c|}
-\hline
- Pasos del rayo         & 128 &  256 \\
-\hline
-\hline
- Tiempo total shaders   & 10 ms &  32.5 ms \\
-\hline
- Rayo Principal         & 2 ms  & 5 ms  \\
-\hline
- Rayos Secundarios      &  8 ms & 27.5 ms  \\
-\hline
-\end{tabular}
-\caption{Detalle de tiempos de renderizado en milisegundos.}
-\label{tab:n2}
-\end{table}
-
-
-\section{Resultados}
 We employed a nVidia GTX 480 ($480$ shader units), which is a typical user configuration.
 The CPU is an Intel(R) Core(TM) i5-2300 CPU (quad core).
 The screen resolution is $1440\times900$.
@@ -329,7 +268,39 @@ Since yeast is unnecessary in the sponge manufacturing process, we used a random
 We also handled back illumination in the model (see Fig.~\ref{fg:backillum}): the render shows the light propagation in the medium when illuminated from behind.
 This is a natural consequence of the RTE based algorithm and the choice of the volume representation that we made.
 
-\subsection*{Computing times}
+El programa de prueba creado permite modificar parámetros tales como el coeficiente de transmitancia del pan, el límite de transmitancia, el color asignado a la miga y la intensidad de los reflejos especulares, entre otros.
+
+\begin{figure*}[htb!]
+  \centerline{\includegraphics[width=13cm]{fig5}}
+  \caption{Different real time rendered breads. The rightmost image shows a bread withouth crust.}
+  \label{fg:fig5}
+\end{figure*}
+
+\subsection{Other Materials}
+It is possible to obtain other porous materials (see Fig.~\ref{fg:fig6}).
+These images are the result of a variation in artistical and technical model parameters.
+In the leftmost image, a pudding can be distinguished.
+The middle image shows a piece of cake.
+The right image show a sponge.
+It is worth mention that the density function for the sponge is a volumetric texture, which values come from a random function, since the sponge making process is quite different and does not present big alveoli. 
+Retro-illumination is approximated in the model, see Fig.\ref{fg:fig7}
+The image shows a sponge between the camera and the light source, with beams of light escaping from the sponge and reaching the camera.
+
+\begin{figure*}[htb!]
+  \centerline{\includegraphics[width=13cm]{fig6}}
+  \caption{Different materials obtained with different parameter configurations. From left to right: pudding, cake and sponge.}
+  \label{fg:fig6}
+
+\end{figure*}
+
+\begin{figure*}[htb!]
+  \centerline{\includegraphics[width=8cm]{fig7}}
+  \caption{Retro illuminated sponge.}
+  \label{fg:fig7}
+\end{figure*}
+
+
+\section{Computing times}
 
 We rendered all images in real time (FPS over 30). Two parameters are responsible for most of the computations: the transmittance coefficient and the step count.
 A low transmittance produces a more transparent material making the ray accumulate more information.
@@ -339,8 +310,28 @@ We experimentally found that values above $140$ give reasonably images for spong
 The process automatically scales with the number of GPU processors, so the fps count will increment in more powerful GPUs. 
 The use of crust slightly boosts the performance since the transmittance is lower for crust regions, {\em i.e.}, the rays need lower step counts to reach a threshold opacity level.
 
+%\begin{table}[htb]
+%\centering
+%\begin{tabular}{|c|c|c|c|c|c|c|}
+%\hline
+% Pasos del rayo         & 128 &  256 \\
+%\hline
+%\hline
+% Tiempo total shaders   & 10 ms &  32.5 ms \\
+%\hline
+% Rayo Principal         & 2 ms  & 5 ms  \\
+%\hline
+% Rayos Secundarios      &  8 ms & 27.5 ms  \\
+%\hline
+%\end{tabular}
+%\caption{Detalle de tiempos de renderizado en milisegundos.}
+%\label{tab:n2}
+%\end{table}
 
-\section*{Discussion}
+
+
+
+\section{Discussion}
 
 To the best of the authors' knowledge, this is the first attempt to convincingly render bread crumb and other materials in real time without introducing complex intermediate processes (capture, mesh generation, precomputation, post-process).
 There are few previous approaches to bread rendering. An example is \cite{Cho2007}, but comparisons with this technique could not be established since key details are unexplained (computing times, render method).
@@ -369,7 +360,7 @@ This limitation is tied to the GPU texture size, and will be eventually circumve
 In off-line applications, memory swap procedures allow more satisfactory 3D resolutions.
 
 
-\section*{Conclusions}
+\section{Conclusions}
 
 In this chapter we applied the transmittance direct volume rendering model using the GPU to a 3D scalar field representing the bread crumb structure, obtaining realistic bread crumb images.
 We modeled this structure using particle systems and dynamical systems.
@@ -401,11 +392,6 @@ These results make us believe that the volume representation is a right choice f
   \label{fg:sponges}
 \end{figure}
 
-\begin{figure}
-  \centerline{\includegraphics[width=13cm]{figures/crusts}}
-  \caption{Crust determination using mathematical morphology. The right image shows that the method works even in extreme cases where the scalar field has holes. }
-  \label{fg:crusts}
-\end{figure}
 
 \begin{figure}
 \centerline{\includegraphics[width=13cm]{figures/occlusion}}

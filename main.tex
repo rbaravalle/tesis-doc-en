@@ -1,0 +1,81 @@
+%\documentclass[spanish,a4paper,11pt,oneside,links]{report}
+\documentclass[spanish,a4paper,openany,11pt]{book}
+\usepackage{graphicx}
+\usepackage{amsmath,amsfonts}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage[Algoritmo]{algorithm}
+\usepackage{algpseudocode}
+\usepackage{url}
+\usepackage{fancyhdr}
+\usepackage{epstopdf}
+
+
+\usepackage{emptypage}
+
+\lhead[]{\rightmark}
+\chead[]{}
+\rhead[\leftmark]{}
+\renewcommand{\headrulewidth}{0.5pt}
+
+\fancypagestyle{plain}{
+\fancyhead[L]{}
+\fancyhead[C]{}
+\fancyhead[R]{}
+\renewcommand{\headrulewidth}{0pt}
+}
+
+\pagestyle{fancy} 
+
+
+\begin{document}
+
+\input{tapa} \cleardoublepage
+
+\chapter*{Agradecimientos} % si no queremos que añada la palabra "Capitulo"
+\pagenumbering{Roman} % para comenzar la numeracion de paginas en numeros romanos
+\addcontentsline{toc}{chapter}{Agradecimientos} % si queremos que aparezca en el índice
+\markboth{AGRADECIMIENTOS}{AGRADECIMIENTOS} % encabezado 
+ 
+¡Muchas gracias a todos!
+
+\chapter*{Resumen} % si no queremos que añada la palabra "Capitulo"
+\addcontentsline{toc}{chapter}{Resumen} % si queremos que aparezca en el índice
+\markboth{RESUMEN}{RESUMEN} % encabezado
+
+Una bonita historia
+\tableofcontents % indice de contenidos
+
+\cleardoublepage
+\addcontentsline{toc}{chapter}{Lista de figuras} % para que aparezca en el indice de contenidos
+\listoffigures % indice de figuras
+
+\cleardoublepage
+\addcontentsline{toc}{chapter}{Lista de tablas} % para que aparezca en el indice de contenidos
+\listoftables % indice de tablas
+
+
+% pagina en blanco
+\newpage
+
+\pagenumbering{arabic} 
+\input{introduccion} \cleardoublepage
+\input{estadodelarte} \cleardoublepage
+\input{modelado} \cleardoublepage
+\input{rendering} \cleardoublepage
+\input{validacion} \cleardoublepage
+\input{conclusiones} \cleardoublepage
+
+\appendix
+\input{gpu} \cleardoublepage
+
+
+%Otros apéndices (detalles matemáticos, aspectos tecnológicos del pan, etc.)
+
+\cleardoublepage
+\addcontentsline{toc}{chapter}{Bibliografía}
+\bibliographystyle{unsrt}
+\bibliography{bib}
+
+
+\end{document}
